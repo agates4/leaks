@@ -29,20 +29,31 @@ class DetailViewController: UIViewController, MKMapViewDelegate {
     var selectedAnnotation: MKAnnotationView!
     let keychain = KeychainSwift()
     
+    func parseFor(key: String, list: [[String : [[Any]]]]) -> Int {
+        var shittyCounter = 0
+        for nicknameID in list {
+            if nicknameID.first!.key == key {
+                return shittyCounter
+            }
+            shittyCounter += 1
+        }
+        return -1
+    }
+    
     @IBAction func recenter(_ sender: Any) {
         mapView.setRegion(coordinateRegion, animated: true)
     }
     
     @IBAction func deleteLeak(_ sender: Any) {
         let dataObject = self.keychain.getData("leakList")!
-        var leakList = NSKeyedUnarchiver.unarchiveObject(with: dataObject) as! [String : [[Any]]]
+        var leakList = NSKeyedUnarchiver.unarchiveObject(with: dataObject) as! [[String : [[Any]]]]
         var shittyIncrement = 0
-        for (annotation) in leakList[detailTitle.title!]! {
+        let leakListFound = parseFor(key: detailTitle.title!, list: leakList)
+        for (annotation) in leakList[leakListFound][detailTitle.title!]! {
             if (annotation[0] as! CLLocationDegrees) == selectedAnnotation.annotation!.coordinate.latitude
             && (annotation[1] as! CLLocationDegrees) == selectedAnnotation.annotation!.coordinate.longitude
             && (annotation[2] as! String) == selectedAnnotation.annotation!.subtitle!! {
-                print("GOT HERE BITCH")
-                leakList[detailTitle.title!]!.remove(at: shittyIncrement)
+                leakList[leakListFound][detailTitle.title!]!.remove(at: shittyIncrement)
             }
             shittyIncrement += 1
         }
@@ -66,14 +77,21 @@ class DetailViewController: UIViewController, MKMapViewDelegate {
 
         let checkData = self.keychain.getData("leakList")
         if checkData == nil {
-            let initArray : [String : [[Any]]] = [detailTitle.title! : [[annotation.coordinate.latitude, annotation.coordinate.longitude, date]]]
+            let initArray : [[String : [[Any]]]] = [[detailTitle.title! : [[annotation.coordinate.latitude, annotation.coordinate.longitude, date]]]]
             let dataObject = NSKeyedArchiver.archivedData(withRootObject: initArray)
             keychain.set(dataObject, forKey: "leakList")
         }
         else {
             let dataObject = self.keychain.getData("leakList")!
-            var leakList = NSKeyedUnarchiver.unarchiveObject(with: dataObject) as! [String : [[Any]]]
-            leakList[detailTitle.title!]!.append([annotation.coordinate.latitude, annotation.coordinate.longitude, date])
+            var leakList = NSKeyedUnarchiver.unarchiveObject(with: dataObject) as! [[String : [[Any]]]]
+            let leakListFound = parseFor(key: detailTitle.title!, list: leakList)
+            if leakListFound == -1 {
+                let initArray : [[String : [[Any]]]] = [[detailTitle.title! : [[annotation.coordinate.latitude, annotation.coordinate.longitude, date]]]]
+                let dataObject = NSKeyedArchiver.archivedData(withRootObject: initArray)
+                keychain.set(dataObject, forKey: "leakList")
+                return
+            }
+            leakList[leakListFound][detailTitle.title!]!.append([annotation.coordinate.latitude, annotation.coordinate.longitude, date])
             let dataObject2 = NSKeyedArchiver.archivedData(withRootObject: leakList)
             keychain.set(dataObject2, forKey: "leakList")
         }
@@ -115,13 +133,18 @@ class DetailViewController: UIViewController, MKMapViewDelegate {
                 Alamofire.request(url).response { response in // method defaults to `.get`
                     let json = JSON(data: response.data!)
                     DispatchQueue.main.async {
-                        let east = json.first!.1.floatValue
-                        let south = json[json.index(json.startIndex, offsetBy: 1)].1.floatValue
-                        let west = json[json.index(json.startIndex, offsetBy: 2)].1.floatValue
-                        let north = json[json.index(json.startIndex, offsetBy: 3)].1.floatValue
-                        self.imageUrl = json[json.index(json.startIndex, offsetBy: 4)].1.stringValue
-                        self.floorplanUrl.text = self.imageUrl
-                        self.handleData(east: east, south: south, west: west, north: north)
+                        if !json.isEmpty {
+                            let east = json.first!.1.floatValue
+                            let south = json[json.index(json.startIndex, offsetBy: 1)].1.floatValue
+                            let west = json[json.index(json.startIndex, offsetBy: 2)].1.floatValue
+                            let north = json[json.index(json.startIndex, offsetBy: 3)].1.floatValue
+                            self.imageUrl = json[json.index(json.startIndex, offsetBy: 4)].1.stringValue
+                            self.floorplanUrl.text = self.imageUrl
+                            self.handleData(east: east, south: south, west: west, north: north)
+                        }
+                        else {
+                            self.handleData(east: 0.0, south: 0.0, west: 0.0, north: 0.0)
+                        }
                     }
                 }
             }
@@ -138,26 +161,28 @@ class DetailViewController: UIViewController, MKMapViewDelegate {
         
         let regionRadius: CLLocationDistance = 75
         self.coordinateRegion = MKCoordinateRegionMakeWithDistance(center, regionRadius, regionRadius)
-        self.mapView.setRegion(self.coordinateRegion, animated: true)
         
         var coords = [center, topLeft, topRight, bottomLeft, bottomRight]
         if detailTitle.title! != "Tremco" {
             // this is ONLY to estimate rectangle size
             // remove this if you have exact coordinates for N E S W
+            self.coordinateRegion = MKCoordinateRegionMakeWithDistance(location.coordinate, regionRadius, regionRadius)
             coords = [
-                coordinateRegion.center,
+                location.coordinate,
                 CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude - 0.0005),
                 CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude + 0.0005),
                 CLLocationCoordinate2D(latitude: location.coordinate.latitude - 0.0005, longitude: location.coordinate.longitude),
                 CLLocationCoordinate2D(latitude: location.coordinate.latitude + 0.0005, longitude: location.coordinate.longitude),
             ]
         }
-        
+        self.mapView.setRegion(self.coordinateRegion, animated: true)
+
         let dataObject = self.keychain.getData("leakList")
         if dataObject != nil {
-            var leakList = NSKeyedUnarchiver.unarchiveObject(with: dataObject!) as! [String : [[Any]]]
-            if leakList.index(forKey: detailTitle.title!) != nil {
-                for (annotation) in leakList[detailTitle.title!]! {
+            var leakList = NSKeyedUnarchiver.unarchiveObject(with: dataObject!) as! [[String : [[Any]]]]
+            let leakListFound = parseFor(key: detailTitle.title!, list: leakList)
+            if leakListFound != -1 && leakList[leakListFound].index(forKey: detailTitle.title!) != nil {
+                for (annotation) in leakList[leakListFound][detailTitle.title!]! {
                     let genAnnotation = MKPointAnnotation()
                     let centerCoordinate = CLLocationCoordinate2D(latitude: annotation[0] as! CLLocationDegrees, longitude: annotation[1] as! CLLocationDegrees)
                     genAnnotation.coordinate = centerCoordinate
@@ -170,12 +195,14 @@ class DetailViewController: UIViewController, MKMapViewDelegate {
         
         let ourBuilding = Building(coords: coords)
         let overlay = BuildingOverlay(building: ourBuilding)
-        Alamofire.request(imageUrl).responseImage { response in
-            if let image = response.result.value {
-                DispatchQueue.main.async {
-                    self.downloadedImage = image
-                    
-                    self.mapView.add(overlay, level: .aboveRoads)
+        if imageUrl != nil {
+            Alamofire.request(imageUrl).responseImage { response in
+                if let image = response.result.value {
+                    DispatchQueue.main.async {
+                        self.downloadedImage = image
+                        
+                        self.mapView.add(overlay, level: .aboveRoads)
+                    }
                 }
             }
         }
