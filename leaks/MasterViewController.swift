@@ -13,6 +13,7 @@ class MasterViewController: UITableViewController {
 
     var detailViewController: DetailViewController? = nil
     var addressList = [String]()
+    var nicknameList = [String]()
     var keychain = KeychainSwift()
 
     override func viewDidLoad() {
@@ -28,16 +29,19 @@ class MasterViewController: UITableViewController {
         }
 
         keychain.synchronizable = true
-        self.keychain.clear()
         let checkData = self.keychain.getData("addressList")
         if checkData == nil {
             let initArray:[String] = []
             let dataObject = NSKeyedArchiver.archivedData(withRootObject: initArray)
             keychain.set(dataObject, forKey: "addressList")
+            keychain.set(dataObject, forKey: "nicknameList")
         }
         else {
             let dataObject = self.keychain.getData("addressList")!
             addressList = NSKeyedUnarchiver.unarchiveObject(with: dataObject) as! [String]
+            
+            let dataObject2 = self.keychain.getData("nicknameList")!
+            nicknameList = NSKeyedUnarchiver.unarchiveObject(with: dataObject2) as! [String]
         }
     }
 
@@ -58,19 +62,28 @@ class MasterViewController: UITableViewController {
         
         //2. Add the text field. You can configure it however you need.
         alert.addTextField { (textField) in
+            textField.text = "Enter nickname"
+        }
+        alert.addTextField { (textField) in
             textField.text = "Enter address"
         }
         
         // 3. Grab the value from the text field, and print it when the user clicks OK.
         alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { [weak alert] (_) in
-            let textField = alert!.textFields![0] // Force unwrapping because we know it exists.
+            let textField = alert!.textFields![1] // Force unwrapping because we know it exists.
+            let textField2 = alert!.textFields![0]
             let defaultValue = "null"
-            let userInput = textField.text ?? defaultValue
+            let userAddress = textField.text ?? defaultValue
+            let userNickname = textField2.text ?? defaultValue
             
-            if !self.addressList.contains(userInput) {
-                self.addressList.insert(userInput, at: 0)
+            if !self.addressList.contains(userAddress) {
+                self.addressList.insert(userAddress, at: 0)
                 let dataObject = NSKeyedArchiver.archivedData(withRootObject: self.addressList)
                 self.keychain.set(dataObject, forKey: "addressList")
+                
+                self.nicknameList.insert(userNickname, at: 0)
+                let dataObject2 = NSKeyedArchiver.archivedData(withRootObject: self.nicknameList)
+                self.keychain.set(dataObject2, forKey: "nicknameList")
                 
                 let indexPath = IndexPath(row: 0, section: 0)
                 self.tableView.insertRows(at: [indexPath], with: .automatic)
@@ -86,11 +99,12 @@ class MasterViewController: UITableViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail" {
             if let indexPath = tableView.indexPathForSelectedRow {
-                let object = addressList[indexPath.row] 
+                let object = [addressList[indexPath.row], nicknameList[indexPath.row]]
                 let controller = (segue.destination as! UINavigationController).topViewController as! DetailViewController
                 controller.detailItem = object
                 controller.navigationItem.leftBarButtonItem = splitViewController?.displayModeButtonItem
                 controller.navigationItem.leftItemsSupplementBackButton = true
+                let _ = controller.view // forces view to load prior to sending segue
             }
         }
     }
@@ -108,8 +122,10 @@ class MasterViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
 
-        let object = addressList[indexPath.row] 
+        let object = nicknameList[indexPath.row]
+        let object2 = addressList[indexPath.row]
         cell.textLabel!.text = object.description
+        cell.detailTextLabel!.text = object2.description
         return cell
     }
 
@@ -121,8 +137,11 @@ class MasterViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             addressList.remove(at: indexPath.row)
+            nicknameList.remove(at: indexPath.row)
             let dataObject = NSKeyedArchiver.archivedData(withRootObject: self.addressList)
             self.keychain.set(dataObject, forKey: "addressList")
+            let dataObject2 = NSKeyedArchiver.archivedData(withRootObject: self.nicknameList)
+            self.keychain.set(dataObject2, forKey: "nicknameList")
             tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view.

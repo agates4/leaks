@@ -13,6 +13,9 @@
 		0AA67A541F770EE300201E9E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AA67A521F770EE300201E9E /* Main.storyboard */; };
 		0AA67A561F770EE300201E9E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0AA67A551F770EE300201E9E /* Assets.xcassets */; };
 		0AA67A591F770EE300201E9E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0AA67A571F770EE300201E9E /* LaunchScreen.storyboard */; };
+		0AA67A631F7756F300201E9E /* BuildingOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA67A621F7756F300201E9E /* BuildingOverlay.swift */; };
+		0AA67A651F77571900201E9E /* BuildingOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA67A641F77571900201E9E /* BuildingOverlayView.swift */; };
+		0AA67A671F7758F700201E9E /* Building.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AA67A661F7758F700201E9E /* Building.swift */; };
 		D7917AABAABC3FBD35B4EDDD /* Pods_leaks.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 95A0B873A667827FBFEEE3C1 /* Pods_leaks.framework */; };
 /* End PBXBuildFile section */
 
@@ -25,6 +28,9 @@
 		0AA67A551F770EE300201E9E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0AA67A581F770EE300201E9E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0AA67A5A1F770EE300201E9E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0AA67A621F7756F300201E9E /* BuildingOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildingOverlay.swift; sourceTree = "<group>"; };
+		0AA67A641F77571900201E9E /* BuildingOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildingOverlayView.swift; sourceTree = "<group>"; };
+		0AA67A661F7758F700201E9E /* Building.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Building.swift; sourceTree = "<group>"; };
 		95A0B873A667827FBFEEE3C1 /* Pods_leaks.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_leaks.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CC6DFB91C787DB875A99C101 /* Pods-leaks.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-leaks.release.xcconfig"; path = "Pods/Target Support Files/Pods-leaks/Pods-leaks.release.xcconfig"; sourceTree = "<group>"; };
 		FB03102037AD5EBACECDD375 /* Pods-leaks.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-leaks.debug.xcconfig"; path = "Pods/Target Support Files/Pods-leaks/Pods-leaks.debug.xcconfig"; sourceTree = "<group>"; };
@@ -63,6 +69,7 @@
 		0AA67A4B1F770EE300201E9E /* leaks */ = {
 			isa = PBXGroup;
 			children = (
+				0AA67A611F7756CC00201E9E /* Map Overlay */,
 				0AA67A4C1F770EE300201E9E /* AppDelegate.swift */,
 				0AA67A4E1F770EE300201E9E /* MasterViewController.swift */,
 				0AA67A501F770EE300201E9E /* DetailViewController.swift */,
@@ -72,6 +79,16 @@
 				0AA67A5A1F770EE300201E9E /* Info.plist */,
 			);
 			path = leaks;
+			sourceTree = "<group>";
+		};
+		0AA67A611F7756CC00201E9E /* Map Overlay */ = {
+			isa = PBXGroup;
+			children = (
+				0AA67A621F7756F300201E9E /* BuildingOverlay.swift */,
+				0AA67A641F77571900201E9E /* BuildingOverlayView.swift */,
+				0AA67A661F7758F700201E9E /* Building.swift */,
+			);
+			path = "Map Overlay";
 			sourceTree = "<group>";
 		};
 		5BECB90BE6631D54BCC69BEA /* Frameworks */ = {
@@ -214,6 +231,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AA67A651F77571900201E9E /* BuildingOverlayView.swift in Sources */,
+				0AA67A671F7758F700201E9E /* Building.swift in Sources */,
+				0AA67A631F7756F300201E9E /* BuildingOverlay.swift in Sources */,
 				0AA67A511F770EE300201E9E /* DetailViewController.swift in Sources */,
 				0AA67A4F1F770EE300201E9E /* MasterViewController.swift in Sources */,
 				0AA67A4D1F770EE300201E9E /* AppDelegate.swift in Sources */,
