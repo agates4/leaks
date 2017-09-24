@@ -17,12 +17,7 @@ class Building {
     var overlayTopLeftCoordinate = CLLocationCoordinate2D()
     var overlayTopRightCoordinate = CLLocationCoordinate2D()
     var overlayBottomLeftCoordinate = CLLocationCoordinate2D()
-    var overlayBottomRightCoordinate: CLLocationCoordinate2D {
-        get {
-            return CLLocationCoordinate2DMake(overlayBottomLeftCoordinate.latitude,
-                                              overlayTopRightCoordinate.longitude)
-        }
-    }
+    var overlayBottomRightCoordinate = CLLocationCoordinate2D()
     
     var overlayBoundingMapRect: MKMapRect {
         get {
@@ -43,7 +38,7 @@ class Building {
         overlayTopLeftCoordinate = coords[1]
         overlayTopRightCoordinate = coords[2]
         overlayBottomLeftCoordinate = coords[3]
-        
+        overlayBottomRightCoordinate = coords[4]
         boundary = coords
     }
 }

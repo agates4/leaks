@@ -14,7 +14,6 @@ class BuildingOverlay: NSObject, MKOverlay {
     var boundingMapRect: MKMapRect
     
     init(building: Building) {
-        print(building.overlayBoundingMapRect)
         boundingMapRect = building.overlayBoundingMapRect
         coordinate = building.midCoordinate
     }

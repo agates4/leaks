@@ -7,5 +7,8 @@ target 'leaks' do
 
   # Pods for leaks
   pod 'KeychainSwift', '~> 9.0'
+  pod 'Alamofire', '~> 4.5'
+  pod 'AlamofireImage', '~> 3.3'
+  pod 'SwiftyJSON'
   
 end
